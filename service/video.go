@@ -16,4 +16,6 @@ type VideoData struct {
 type VideoService interface {
 	// 上传视频
 	PublishVideo(filename string, title string, userId int64) (*dao.Video, error)
+	// 获取视频列表
+	GetPublishList(userID int64, curId int64) ([]VideoData, error)
 }

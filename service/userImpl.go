@@ -7,6 +7,7 @@ import (
 )
 
 type UserImpl struct {
+	UserService
 }
 
 func (useri *UserImpl) QueryAllUser() []dao.User {

@@ -10,7 +10,7 @@ import (
 var (
 	VideoCount     = 5
 	PlayUrlPrefix  = "http://192.168.249.81:8080/public/videos/"
-	CoverUrlPrefix = "http://192.168.249.81:8080/public/images/"
+	CoverUrlPrefix = "http://192.168.249.81:8080/public/covers/"
 )
 
 // 视频 表结构体
@@ -27,8 +27,8 @@ func (Video) TableName() string {
 	return "video"
 }
 
-// 根据 作者Id 查询其发布的 视频列表
-func QueryVideosByUserId(userId int64) ([]Video, error) {
+// 根据 UserId 查询 视频列表
+func QueryVideoListByUserId(userId int64) ([]Video, error) {
 	var videos []Video
 	err := db.Model(&Video{}).Where("user_id=?", userId).Find(&videos).Error
 	if err == gorm.ErrRecordNotFound {
