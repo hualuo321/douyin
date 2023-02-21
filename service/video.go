@@ -1,0 +1,19 @@
+package service
+
+import "github.com/hualuo321/douyin/dao"
+
+type VideoData struct {
+	Id            int64    `json:"id,omitempty"`
+	Author        UserData `json:"author"`
+	PlayUrl       string   `json:"play_url,omitempty"`
+	CoverUrl      string   `json:"cover_url,omitempty"`
+	FavoriteCount int64    `json:"favorite_count"`
+	CommentCount  int64    `json:"comment_count"`
+	IsFavorite    bool     `json:"is_favorite"`
+	Title         string   `json:"title,omitempty"`
+}
+
+type VideoService interface {
+	// 上传视频
+	PublishVideo(filename string, title string, userId int64) (*dao.Video, error)
+}
