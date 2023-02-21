@@ -16,15 +16,16 @@ import (
 type VideoImpl struct {
 }
 
+// 上传视频
 func (videoi *VideoImpl) PublishVideo(filename string, title string, userId int64) (*dao.Video, error) {
-	playUrl := dao.PlayUrlPrefix + filename
+	playUrl := filename
 	//添加生成视频关键帧并上传到public目录的函数
 	_, err := GetSnapshot("./public/videos/"+filename, "./public/covers/"+filename, 1)
 	if err != nil {
 		log.Println("generate cover err:" + err.Error())
 		return nil, err
 	}
-	coverUrl := dao.CoverUrlPrefix + filename + ".jpg"
+	coverUrl := strings.TrimSuffix(filename, ".mp4") + ".jpg"
 	newVideo := dao.Video{PlayUrl: playUrl, CoverUrl: coverUrl, Title: title, UserId: userId, PublishTime: time.Now()}
 	// func InsertVideo(videoName string, imageName string, userId int64, title string) error
 	if err := dao.InsertVideo(playUrl, coverUrl, userId, title); err != nil {
@@ -34,7 +35,7 @@ func (videoi *VideoImpl) PublishVideo(filename string, title string, userId int6
 	return &newVideo, nil
 }
 
-// 获取视频中的关键帧
+// 获取视频中的关键帧当作封面
 func GetSnapshot(videoPath, snapshotPath string, frameNum int) (snapshotName string, err error) {
 	buf := bytes.NewBuffer(nil)
 	err = ffmpeg.Input(videoPath).

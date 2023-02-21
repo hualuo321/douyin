@@ -68,8 +68,8 @@ func QueryVideosByLastTime(lastTime time.Time) ([]Video, error) {
 func InsertVideo(videoName string, imageName string, userId int64, title string) error {
 	var video Video
 	video.UserId = userId
-	video.PlayUrl = PlayUrlPrefix + videoName + ".mp4"
-	video.CoverUrl = CoverUrlPrefix + imageName + ".jpg"
+	video.PlayUrl = PlayUrlPrefix + videoName
+	video.CoverUrl = CoverUrlPrefix + imageName
 	video.PublishTime = time.Now()
 	video.Title = title
 	err := db.Save(&video).Error
