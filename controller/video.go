@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -14,6 +15,12 @@ import (
 type VideoListResponse struct {
 	Response
 	VideoList []service.VideoData `json:"video_list"`
+}
+
+type FeedResponse struct {
+	Response
+	VideoList []service.VideoData `json:"video_list"`
+	NextTime  int64               `json:"next_time"`
 }
 
 // Publish /publish/action/
@@ -99,14 +106,28 @@ func Feed(c *gin.Context) {
 	fmt.Println("传入的时间:", queryTime)
 	var lastTime int64
 	if queryTime != "0" {
-		lastTime, _ := strconv.ParseInt(queryTime, 10, 64)
+		lastTime, _ = strconv.ParseInt(queryTime, 10, 64)
 	} else {
-		lastTime := time.Now().Unix()
+		lastTime = time.Now().Unix()
 	}
 	fmt.Printf("获取到时间戳%v", lastTime)
 
 	userId, _ := strconv.ParseInt(c.GetString("userId"), 10, 64)
 	fmt.Printf("获取到用户id:%v\n", userId)
 	videoi := service.VideoImpl{}
-	feed, nextTime, err := videoi.Feed()
+	feed, nextTime, err := videoi.Feed(lastTime, userId)
+
+	if err != nil {
+		log.Printf("方法videoService.Feed(lastTime, userId) 失败：%v", err)
+		c.JSON(http.StatusOK, FeedResponse{
+			Response: Response{StatusCode: 1, StatusMsg: "获取视频流失败"},
+		})
+		return
+	}
+	log.Printf("方法videoService.Feed(lastTime, userId) 成功")
+	c.JSON(http.StatusOK, FeedResponse{
+		Response:  Response{StatusCode: 0},
+		VideoList: feed,
+		NextTime:  nextTime,
+	})
 }

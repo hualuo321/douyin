@@ -142,12 +142,12 @@ func (videoi *VideoImpl) Feed(lastTime int64, userId int64) ([]VideoData, int64,
 	//将数据通过copyVideos进行处理，在拷贝的过程中对数据进行组装
 	// var videoDataList = make([]VideoData, 0, dao.VideoCount) // 带缓存的切片，装最多5个
 	// videoDataList := make([]VideoData, 0, len(videoList))
-	videoDataList, err := videoi.PrepareVideoData(videoList, userId)
+	videoDataList, _ := videoi.PrepareVideoData(videoList, userId)
 	if err != nil {
 		log.Printf("方法videoi.PrepareVideoData(videosList, userId)失败：%v", err)
 		return nil, 0, err
 	}
 	fmt.Printf("方法videoi.PrepareVideoData(videosList, userId)成功")
 	//返回数据，同时获得视频中最早的时间返回
-	return videosData, videosList[len(videosList)-1].PublishTime, nil
+	return videoDataList, videoList[len(videoList)-1].PublishTime, nil
 }
