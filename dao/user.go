@@ -4,7 +4,7 @@ import "log"
 
 // User 表结构体
 type User struct {
-	Id       int64  `gorm:"column:user_id"`
+	Id       int64  `gorm:"column:id"`
 	Username string `gorm:"column:username"`
 	Password string `gorm:"column:password"`
 }
@@ -28,7 +28,7 @@ func QueryAllUser() ([]User, error) {
 // 根据id查找指定用户
 func QueryUserById(id int64) (User, error) {
 	user := User{}
-	err := db.Where("user_id=?", id).First(&user).Error
+	err := db.Where("id=?", id).First(&user).Error
 	if err != nil {
 		log.Println(err.Error())
 		return user, err
@@ -39,7 +39,7 @@ func QueryUserById(id int64) (User, error) {
 // 根据username查找指定用户
 func QueryUserByUsername(name string) (User, error) {
 	user := User{}
-	err := db.Where("username = ?", name).First(&user).Error
+	err := db.Where("username=?", name).First(&user).Error
 	if err != nil {
 		log.Println(err.Error())
 		return user, err

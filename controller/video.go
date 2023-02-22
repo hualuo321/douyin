@@ -2,10 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hualuo321/douyin/service"
@@ -19,8 +19,10 @@ type VideoListResponse struct {
 // Publish /publish/action/
 func Publish(c *gin.Context) {
 	title := c.PostForm("title")
+	fmt.Println(title)
+
 	userId, _ := strconv.ParseInt(c.GetString("userId"), 10, 64)
-	log.Printf("获取到用户id:%v\n", userId)
+	fmt.Println("获取到用户id:", userId)
 
 	videoi := service.VideoImpl{}
 
@@ -54,35 +56,57 @@ func Publish(c *gin.Context) {
 			StatusMsg:  "save post video to db fail",
 		})
 		return
-	} else {
-		c.JSON(http.StatusOK, Response{
-			StatusCode: 0,
-			StatusMsg:  filename + " uploaded successfully",
-		})
 	}
+
+	c.JSON(http.StatusOK, Response{
+		StatusCode: 0,
+		StatusMsg:  filename + " uploaded successfully",
+	})
+
 }
 
 // PublishList /publish/list/
 func PublishList(c *gin.Context) {
-	// 查询的别人的 uerId
+
+	// 查询的别人的 uerId	为 1
 	userId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
-	log.Printf("获取到用户id:%v\n", userId)
-	// 当前登陆人的 userId
+	fmt.Printf("获取到用户id:%v\n", userId)
+	// 当前登陆人的 userId  为 1
 	curId, _ := strconv.ParseInt(c.GetString("userId"), 10, 64)
-	log.Printf("获取到当前用户id:%v\n", curId)
+	fmt.Printf("获取到当前用户id:%v\n", curId)
 
 	videoi := service.VideoImpl{}
 	videoDataList, err := videoi.GetPublishList(userId, curId)
 	if err != nil {
-		log.Printf("调用PublishList(%v)出现错误：%v\n", userId, err)
+		fmt.Printf("调用PublishList(%v)出现错误：%v\n", userId, err)
 		c.JSON(http.StatusOK, VideoListResponse{
 			Response: Response{StatusCode: 1, StatusMsg: "获取视频列表失败"},
 		})
 		return
 	}
-	log.Printf("调用GetPublishList(%v)成功", userId)
+
+	fmt.Printf("调用GetPublishList(%v)成功", userId)
 	c.JSON(http.StatusOK, VideoListResponse{
 		Response:  Response{StatusCode: 0},
 		VideoList: videoDataList,
 	})
+}
+
+// 拉取视频列表
+func Feed(c *gin.Context) {
+	// 拉去近期的部分视频
+	queryTime := c.Query("lasted_time")
+	fmt.Println("传入的时间:", queryTime)
+	var lastTime int64
+	if queryTime != "0" {
+		lastTime, _ := strconv.ParseInt(queryTime, 10, 64)
+	} else {
+		lastTime := time.Now().Unix()
+	}
+	fmt.Printf("获取到时间戳%v", lastTime)
+
+	userId, _ := strconv.ParseInt(c.GetString("userId"), 10, 64)
+	fmt.Printf("获取到用户id:%v\n", userId)
+	videoi := service.VideoImpl{}
+	feed, nextTime, err := videoi.Feed()
 }
