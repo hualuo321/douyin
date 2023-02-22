@@ -1,7 +1,9 @@
 package jwt
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -15,10 +17,18 @@ type Response struct {
 // 放在路由访问
 // 如果用户的token正确，解析token，将userId放入context中，否则报错
 func Auth() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		auth := context.Query("token")
+	return func(c *gin.Context) {
+		auth1 := c.Request.PostFormValue("token")
+		auth2 := c.Query("token")
+		var auth = ""
+		if strings.Compare(auth1, auth2) >= 0 {
+			auth = auth1
+		} else {
+			auth = auth2
+		}
+		fmt.Printf("%v \n", auth)
 		if len(auth) == 0 {
-			context.JSON(http.StatusUnauthorized, Response{
+			c.JSON(http.StatusUnauthorized, Response{
 				StatusCode: -1,
 				StatusMsg:  "未授权!",
 			})
@@ -26,16 +36,16 @@ func Auth() gin.HandlerFunc {
 		//解析token
 		token, err := parseToken(auth)
 		if err != nil {
-			context.Abort()
-			context.JSON(http.StatusUnauthorized, Response{
+			c.Abort()
+			c.JSON(http.StatusUnauthorized, Response{
 				StatusCode: -1,
 				StatusMsg:  "Token 错误！",
 			})
 		} else {
 			println("token 正确！")
 		}
-		context.Set("userId", token.Id)
-		context.Next()
+		c.Set("userId", token.Id)
+		c.Next()
 	}
 }
 
