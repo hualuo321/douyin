@@ -1,0 +1,16 @@
+create table user (
+    id bigint PRIMARY KEY AUTO_INCREMENT,
+    username varchar(255),
+    password varchar(255)
+) AUTO_INCREMENT=10000001;
+select * from user;
+
+create table video (
+    id bigint PRIMARY KEY AUTO_INCREMENT,
+    user_id bigint,
+    play_url varchar(255),
+    cover_url varchar(255),
+    publish_time DATETIME,
+    title VARCHAR(255)
+) AUTO_INCREMENT=50000001;
+SELECT * FROM video;
