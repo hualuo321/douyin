@@ -24,7 +24,7 @@ type UserLoginResponse struct {
 
 type UserResponse struct {
 	Response
-	User service.UserData `json:"user_data"`
+	User service.UserData `json:"user"`
 }
 
 // 注册 douyin/user/register/
