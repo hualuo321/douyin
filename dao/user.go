@@ -26,7 +26,7 @@ func QueryAllUser() ([]User, error) {
 }
 
 // 根据id查找指定用户
-func QueryUserById(id int64) (User, error) {
+func GetUserById(id int64) (User, error) {
 	user := User{}
 	err := db.Where("id=?", id).First(&user).Error
 	if err != nil {

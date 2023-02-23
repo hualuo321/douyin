@@ -8,7 +8,6 @@ import (
 )
 
 type UserImpl struct {
-	UserService
 }
 
 func (useri *UserImpl) QueryAllUser() []dao.User {
@@ -22,7 +21,7 @@ func (useri *UserImpl) QueryAllUser() []dao.User {
 
 // 根据id查找用户
 func (useri *UserImpl) QueryUserById(id int64) dao.User {
-	user, err := dao.QueryUserById(id)
+	user, err := dao.GetUserById(id)
 	if err != nil {
 		log.Println("error:", err.Error())
 		log.Println("通过id查询用户失败! 用户未找到!")
@@ -58,7 +57,7 @@ func (useri *UserImpl) InsertUser(user *dao.User) bool {
 
 // 获取用户数据 UserData
 // 未登录状态
-func (useri *UserImpl) GetUserById(id int64) (UserData, error) {
+func (useri *UserImpl) GetUserDataById(id int64) (UserData, error) {
 	userData := UserData{
 		Id:             0,
 		Username:       "",
@@ -68,7 +67,7 @@ func (useri *UserImpl) GetUserById(id int64) (UserData, error) {
 		TotalFavorited: 0,
 		FavoritedCount: 0,
 	}
-	user, err := dao.QueryUserById(id)
+	user, err := dao.GetUserById(id)
 	if err != nil {
 		log.Println("err:", err.Error())
 		log.Println("用户未找到！！")
@@ -104,7 +103,7 @@ func (useri *UserImpl) GetUserByCurrentId(id int64, currentId int64) (UserData, 
 		TotalFavorited: 0,
 		FavoritedCount: 0,
 	}
-	user, err := dao.QueryUserById(id)
+	user, err := dao.GetUserById(id)
 	if err != nil {
 		log.Println("err:", err.Error())
 		log.Println("用户未找到！！")
@@ -128,4 +127,18 @@ func (useri *UserImpl) GetUserByCurrentId(id int64, currentId int64) (UserData, 
 		FavoritedCount: 1,     //这里本应该是查询出来的变量,为了测试直接赋值
 	}
 	return userData, nil
+}
+
+// / 获取用户数据列表
+func (useri *UserImpl) GetUserDataList(userIdList []int64) ([]UserData, error) {
+	var userDataList []UserData
+	for _, userId := range userIdList {
+		userData, err := useri.GetUserDataById(userId)
+		if err != nil {
+			log.Println("通过Id获取用户失败", err)
+			return nil, err
+		}
+		userDataList = append(userDataList, userData)
+	}
+	return userDataList, nil
 }

@@ -92,7 +92,7 @@ func UserInfo(c *gin.Context) {
 	print("------查询到的 userid 为", user_id)
 	useri := service.UserImpl{}
 	//非登录情况下
-	user, err := useri.GetUserById(user_id)
+	user, err := useri.GetUserDataById(user_id)
 	fmt.Println("--------查询到的用户信息为", user)
 	if err != nil {
 		c.JSON(http.StatusOK, UserResponse{

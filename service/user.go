@@ -24,7 +24,7 @@ type UserService interface {
 	InsertUser(tableUser *dao.User) bool
 	//他人查看信息
 	//通过id查询，未登录情况
-	GetUserById(id int64) (UserData, error)
+	GetUserDataById(id int64) (UserData, error)
 	//已经登录的情况下，根据user_id获得User对象
 	GetUserByCurrentId(id int64, currentId int64) (UserData, error)
 }
