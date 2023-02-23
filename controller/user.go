@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -57,16 +58,20 @@ func Register(c *gin.Context) {
 
 // 登录 douyin/usr/login
 func Login(c *gin.Context) {
+	fmt.Println("---当前位于contorller/user/Login() 1 ---")
 	username := c.Query("username")
+	fmt.Println("-当前输入的用户是：", username)
 	password := c.Query("password")
+	fmt.Println("-当前输入的密码是：", password)
 	encoderPassword := service.EnCoder(password)
 	useri := service.UserImpl{}
 	user := useri.QueryUserByUsername(username)
-	log.Println("正在登录的用户是：", user)
-
+	fmt.Println("---当前位于contorller/user/Login() 2 ---")
+	fmt.Println("-查询到的用户信息为", user)
 	// 登录成功，则返回 用户编号 与 token
 	if encoderPassword == user.Password {
 		token := service.GenerateToken(username)
+		fmt.Println("-登录的用户信息为", user)
 		c.JSON(http.StatusOK, UserLoginResponse{
 			Response: Response{StatusCode: 0},
 			UserId:   user.Id,
@@ -82,13 +87,13 @@ func Login(c *gin.Context) {
 // userInfo douyin/user/
 func UserInfo(c *gin.Context) {
 	id := c.Query("user_id")
+	print("------查询到的 userid 为", id)
 	user_id, _ := strconv.ParseInt(id, 10, 64)
-	useri := service.UserImpl{
-		//RelationService: service.RelationServiceImpl{},
-		//FavoriteService: service.FavoriteServiceImpl{},
-	}
+	print("------查询到的 userid 为", user_id)
+	useri := service.UserImpl{}
 	//非登录情况下
 	user, err := useri.GetUserById(user_id)
+	fmt.Println("--------查询到的用户信息为", user)
 	if err != nil {
 		c.JSON(http.StatusOK, UserResponse{
 			Response: Response{StatusCode: 1, StatusMsg: "用户不存在！"},

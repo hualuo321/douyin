@@ -17,19 +17,20 @@ type VideoListResponse struct {
 	VideoList []service.VideoData `json:"video_list"`
 }
 
+// response类型
 type FeedResponse struct {
 	Response
-	VideoList []service.VideoData `json:"video_list"`
-	NextTime  int64               `json:"next_time"`
+	VideoList []service.VideoData `json:"video_list,omitempty"`
+	NextTime  int64               `json:"next_time,omitempty"`
 }
 
 // Publish /publish/action/
 func Publish(c *gin.Context) {
 	title := c.PostForm("title")
-	fmt.Println(title)
+	// fmt.Println("here is title:", title)
 
 	userId, _ := strconv.ParseInt(c.GetString("userId"), 10, 64)
-	fmt.Println("获取到用户id:", userId)
+	fmt.Println("here is 获取到用户id:", userId)
 
 	videoi := service.VideoImpl{}
 
@@ -43,10 +44,10 @@ func Publish(c *gin.Context) {
 	}
 
 	filename := filepath.Base(data.Filename)
-	print("filename:", filename)
+	fmt.Println("filename:", filename) // rui_shi.mp4
 	filename = fmt.Sprintf("%d_%s", userId, filename)
-	print("filename:", filename)
-	saveFile := filepath.Join("./public/videos/", filename)
+	fmt.Println("filename:", filename)                      // 2_rui_shi.mp4
+	saveFile := filepath.Join("./public/videos/", filename) // ./public/videos/2_rui_shi.mp4
 	if err := c.SaveUploadedFile(data, saveFile); err != nil {
 		c.JSON(http.StatusOK, Response{
 			StatusCode: 1,
@@ -56,7 +57,7 @@ func Publish(c *gin.Context) {
 	}
 
 	// 传一个视频名字，一个title，一个userID
-	newVideo, err := videoi.PublishVideo(filename, title, userId)
+	newVideo, err := videoi.PublishVideo(filename, title, userId) // 2_rui_shi.mp4
 	if newVideo == nil || err != nil {
 		c.JSON(http.StatusOK, Response{
 			StatusCode: 2,
@@ -74,7 +75,6 @@ func Publish(c *gin.Context) {
 
 // PublishList /publish/list/
 func PublishList(c *gin.Context) {
-
 	// 查询的别人的 uerId	为 1
 	userId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	fmt.Printf("获取到用户id:%v\n", userId)
@@ -101,24 +101,25 @@ func PublishList(c *gin.Context) {
 
 // 拉取视频列表
 func Feed(c *gin.Context) {
-	// 拉去近期的部分视频
-	queryTime := c.Query("lasted_time")
-	fmt.Println("传入的时间:", queryTime)
-	var lastTime int64
-	if queryTime != "0" {
-		lastTime, _ = strconv.ParseInt(queryTime, 10, 64)
+	fmt.Println("---当前位于 /controller/video/Feed()")
+	inputTime := c.Query("latest_time")
+	fmt.Println("-传入的时间戳", inputTime)
+	var lastTime time.Time
+	if inputTime != "0" {
+		lastTime = time.Now()
 	} else {
-		lastTime = time.Now().Unix()
+		lastTime = time.Now()
 	}
-	fmt.Printf("获取到时间戳%v", lastTime)
-
+	fmt.Println("-最新的时间", lastTime)
 	userId, _ := strconv.ParseInt(c.GetString("userId"), 10, 64)
-	fmt.Printf("获取到用户id:%v\n", userId)
+	fmt.Println("-获取到当前用户id", userId)
+
+	fmt.Println("-定义videoi接口, 根据 videoi.Feed 获取视频数据列表")
 	videoi := service.VideoImpl{}
-	feed, nextTime, err := videoi.Feed(lastTime, userId)
+	videoDataList, nextTime, err := videoi.Feed(lastTime, userId)
 
 	if err != nil {
-		log.Printf("方法videoService.Feed(lastTime, userId) 失败：%v", err)
+		log.Printf("方法 videoi.Feed(lastTime, userId) 失败：%v\n", err)
 		c.JSON(http.StatusOK, FeedResponse{
 			Response: Response{StatusCode: 1, StatusMsg: "获取视频流失败"},
 		})
@@ -127,7 +128,7 @@ func Feed(c *gin.Context) {
 	log.Printf("方法videoService.Feed(lastTime, userId) 成功")
 	c.JSON(http.StatusOK, FeedResponse{
 		Response:  Response{StatusCode: 0},
-		VideoList: feed,
-		NextTime:  nextTime,
+		VideoList: videoDataList,
+		NextTime:  nextTime.Unix(),
 	})
 }

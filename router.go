@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/hualuo321/douyin/controller"
 	"github.com/hualuo321/douyin/jwt"
@@ -10,7 +12,7 @@ func initRouter(r *gin.Engine) {
 	// gin 组
 	apiRouter := r.Group("/douyin")
 	// public directory is used to serve static resources
-	r.Static("/static", "./public")
+	r.StaticFS("/public", http.Dir("./public"))
 	//basic apis
 	apiRouter.GET("/user/", jwt.Auth(), controller.UserInfo)
 	apiRouter.POST("/user/register/", controller.Register)

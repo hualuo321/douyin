@@ -19,15 +19,18 @@ type VideoImpl struct {
 
 // 上传视频
 func (videoi *VideoImpl) PublishVideo(filename string, title string, userId int64) (*dao.Video, error) {
-	playUrl := filename
+	filename = strings.TrimSuffix(filename, ".mp4") // 2_rui_shi
+	// playUrl := filename
+	// coverUrl := strings.TrimSuffix(filename, ".mp4") + ".jpg"
 	//添加生成视频关键帧并上传到public目录的函数
-	_, err := GetSnapshot("./public/videos/"+filename, "./public/covers/"+filename, 1)
+	_, err := GetSnapshot("./public/videos/"+filename+".mp4", "./public/covers/"+filename+".jpg", 1) // (./public/videos/2_rui_shi.mp4, ./public/covers/2_rui_shi.jpg)
 	if err != nil {
 		log.Println("generate cover err:" + err.Error())
 		return nil, err
 	}
-	coverUrl := strings.TrimSuffix(filename, ".mp4") + ".jpg"
-	newVideo := dao.Video{PlayUrl: playUrl, CoverUrl: coverUrl, Title: title, UserId: userId, PublishTime: time.Now().Unix()}
+	playUrl := filename + ".mp4"  // 2_rui_shi.mp4
+	coverUrl := filename + ".jpg" // 2_rui_shi.jpg
+	newVideo := dao.Video{PlayUrl: playUrl, CoverUrl: coverUrl, Title: title, UserId: userId, PublishTime: time.Now()}
 	// func InsertVideo(videoName string, imageName string, userId int64, title string) error
 	if err := dao.InsertVideo(playUrl, coverUrl, userId, title); err != nil {
 		log.Println("post video to db err:" + err.Error())
@@ -55,13 +58,13 @@ func GetSnapshot(videoPath, snapshotPath string, frameNum int) (snapshotName str
 		return "", err
 	}
 
-	err = imaging.Save(img, snapshotPath+".jpg")
+	err = imaging.Save(img, snapshotPath)
 	if err != nil {
 		log.Println("saving cover fail:" + err.Error())
 		return "", err
 	}
 	names := strings.Split(snapshotPath, "\\")
-	snapshotName = names[len(names)-1] + ".jpg"
+	snapshotName = names[len(names)-1]
 	return snapshotName, nil
 }
 
@@ -85,6 +88,7 @@ func (videoi *VideoImpl) GetPublishList(userId int64, curId int64) ([]VideoData,
 }
 
 func (videoi *VideoImpl) PrepareVideoData(videoList []dao.Video, userId int64) ([]VideoData, error) {
+	fmt.Println("---当前位于 /service/videoImpl/PrepareVideoData()")
 	videoDataList := make([]VideoData, 0, len(videoList))
 	for _, video := range videoList {
 		videoData, _ := videoi.CreatVideoData(video, userId)
@@ -129,25 +133,26 @@ func (videoi *VideoImpl) CreatVideoData(video dao.Video, userId int64) (VideoDat
 
 // 通过传入时间戳，当前用户的id，返回对应的视频数组，以及视频数组中最早的发布时间
 // 获取视频数组大小是可以控制的，在config中的videoCount变量
-func (videoi *VideoImpl) Feed(lastTime int64, userId int64) ([]VideoData, int64, error) {
-	// 创建对应返回视频的切片数组，提前将切片的容量设置好，可以减少切片扩容的性能
-
-	// 根据传入的时间，获得传入时间前n个视频，可以通过config.videoCount来控制
-	videoList, err := dao.QueryVideosByLastTime(lastTime)
-	if err != nil {
-		log.Printf("方法dao.QueryVideosByLastTime(lastTime)失败：%v", err)
-		return nil, 0, err
-	}
-	log.Printf("方法dao.QueryVideosByLastTime(lastTime)成功：%v", videoList)
+func (videoi *VideoImpl) Feed(latestTime time.Time, userId int64) ([]VideoData, time.Time, error) {
+	fmt.Println("---当前位于 /service/video/Feed()")
 	//将数据通过copyVideos进行处理，在拷贝的过程中对数据进行组装
-	// var videoDataList = make([]VideoData, 0, dao.VideoCount) // 带缓存的切片，装最多5个
-	// videoDataList := make([]VideoData, 0, len(videoList))
-	videoDataList, _ := videoi.PrepareVideoData(videoList, userId)
+	var videoDataList = make([]VideoData, dao.VideoCount)
+	// 根据传入的时间，获得传入时间前n个视频，可以通过config.videoCount来控制
+	fmt.Println("-通过dao.QueryVideosByLastTime获取视频列表")
+	videoList, err := dao.QueryVideosByLastTime(latestTime)
+	fmt.Println("-查看下获取视频列表的长度为:", len(videoList))
 	if err != nil {
-		log.Printf("方法videoi.PrepareVideoData(videosList, userId)失败：%v", err)
-		return nil, 0, err
+		log.Println("方法 dao.QueryVideosByLastTime(lastTime) 失败", err)
+		return nil, time.Time{}, err
 	}
-	fmt.Printf("方法videoi.PrepareVideoData(videosList, userId)成功")
+	fmt.Println("-方法dao.QueryVideosByLastTime(lastTime)成功", videoList)
+	fmt.Println("-通过 videoi.PrepareVideoData 将视频列表变为视频数据列表")
+	videoDataList, err = videoi.PrepareVideoData(videoList, userId)
+	if err != nil {
+		fmt.Println("方法videoi.PrepareVideoData(videoList, userId) 失败：", err)
+		return nil, time.Time{}, err
+	}
+	fmt.Println("方法videoi.PrepareVideoData(videosList, userId)成功", videoDataList)
 	//返回数据，同时获得视频中最早的时间返回
 	return videoDataList, videoList[len(videoList)-1].PublishTime, nil
 }

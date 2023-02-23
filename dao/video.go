@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -15,12 +16,12 @@ var (
 
 // 视频 表结构体
 type Video struct {
-	Id          int64  `gorm:"column:id"`
-	UserId      int64  `gorm:"column:user_id"`
-	PlayUrl     string `gorm:"column:play_url"`
-	CoverUrl    string `gorm:"column:cover_url"`
-	PublishTime int64  `gorm:"column:publish_time"`
-	Title       string `gorm:"column:title"`
+	Id          int64     `gorm:"column:id"`
+	UserId      int64     `gorm:"column:user_id"`
+	PlayUrl     string    `gorm:"column:play_url"`
+	CoverUrl    string    `gorm:"column:cover_url"`
+	PublishTime time.Time `gorm:"column:publish_time"`
+	Title       string    `gorm:"column:title"`
 }
 
 func (Video) TableName() string {
@@ -55,13 +56,19 @@ func QueryVideoByVideoId(videoId int64) (Video, error) {
 }
 
 // 依据一个时间，来获取这个时间之前的一些视频
-func QueryVideosByLastTime(lastTime int64) ([]Video, error) {
-	videos := make([]Video, VideoCount)
-	err := db.Where("publish_time<?", lastTime).Order("publish_time desc").Limit(VideoCount).Find(&videos).Error
-	if err != nil {
-		return videos, err
+func QueryVideosByLastTime(lastTime time.Time) ([]Video, error) {
+	videoList := make([]Video, VideoCount)
+	//format the time to compare with the time in db
+	err := db.Where("publish_time<?", lastTime).Order("publish_time desc").Limit(VideoCount).Find(&videoList).Error
+	// err := db.Model(&Video{}).Where("publish_time < ?", lastTime).Order("publish_time desc").Find(&videoList).Error
+	fmt.Println("length of video list: ", len(videoList))
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
 	}
-	return videos, nil
+	if err != nil {
+		return videoList, err
+	}
+	return videoList, nil
 }
 
 // 插入视频记录到db
@@ -70,7 +77,7 @@ func InsertVideo(videoName string, imageName string, userId int64, title string)
 	video.UserId = userId
 	video.PlayUrl = PlayUrlPrefix + videoName
 	video.CoverUrl = CoverUrlPrefix + imageName
-	video.PublishTime = time.Now().Unix()
+	video.PublishTime = time.Now()
 	video.Title = title
 	err := db.Save(&video).Error
 	if err != nil {

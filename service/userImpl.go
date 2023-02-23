@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hualuo321/douyin/dao"
@@ -33,6 +34,7 @@ func (useri *UserImpl) QueryUserById(id int64) dao.User {
 
 // 根据username查找用户
 func (useri *UserImpl) QueryUserByUsername(name string) dao.User {
+	fmt.Println("---当前位于service/userImpl/QueryUserByUsername()---")
 	user, err := dao.QueryUserByUsername(name)
 	if err != nil {
 		log.Println("error:", err.Error())
@@ -40,6 +42,7 @@ func (useri *UserImpl) QueryUserByUsername(name string) dao.User {
 		return user
 	}
 	log.Println("查询用户成功！")
+	fmt.Println("-查询到的用户信息为", user)
 	return user
 }
 
@@ -57,13 +60,11 @@ func (useri *UserImpl) InsertUser(user *dao.User) bool {
 // 未登录状态
 func (useri *UserImpl) GetUserById(id int64) (UserData, error) {
 	userData := UserData{
-		Id:             0,
-		Username:       "",
-		FollowCount:    0,
-		FollowerCount:  0,
-		IsFollow:       false,
-		TotalFavorited: 0,
-		FavoritedCount: 0,
+		Id:            0,
+		Username:      "",
+		FollowCount:   0,
+		FollowerCount: 0,
+		IsFollow:      false,
 	}
 	user, err := dao.QueryUserById(id)
 	if err != nil {
@@ -79,13 +80,11 @@ func (useri *UserImpl) GetUserById(id int64) (UserData, error) {
 
 	//返回封装的结构体
 	userData = UserData{
-		Id:             id,
-		Username:       user.Username,
-		FollowCount:    3,     //这里本应该是查询出来的变量,为了测试直接赋值
-		FollowerCount:  5,     //这里本应该是查询出来的变量,为了测试直接赋值
-		IsFollow:       false, //这里因为没有登录，查看不了是否关注，默认不关注
-		TotalFavorited: 100,   //这里本应该是查询出来的变量,为了测试直接赋值
-		FavoritedCount: 1,     //这里本应该是查询出来的变量,为了测试直接赋值
+		Id:            id,
+		Username:      user.Username,
+		FollowCount:   3,     //这里本应该是查询出来的变量,为了测试直接赋值
+		FollowerCount: 5,     //这里本应该是查询出来的变量,为了测试直接赋值
+		IsFollow:      false, //这里因为没有登录，查看不了是否关注，默认不关注
 	}
 	return userData, nil
 }
@@ -93,13 +92,11 @@ func (useri *UserImpl) GetUserById(id int64) (UserData, error) {
 // 已登录状态
 func (useri *UserImpl) GetUserByCurrentId(id int64, currentId int64) (UserData, error) {
 	userData := UserData{
-		Id:             0,
-		Username:       "",
-		FollowCount:    0,
-		FollowerCount:  0,
-		IsFollow:       false,
-		TotalFavorited: 0,
-		FavoritedCount: 0,
+		Id:            0,
+		Username:      "",
+		FollowCount:   0,
+		FollowerCount: 0,
+		IsFollow:      false,
 	}
 	user, err := dao.QueryUserById(id)
 	if err != nil {
@@ -116,13 +113,11 @@ func (useri *UserImpl) GetUserByCurrentId(id int64, currentId int64) (UserData, 
 
 	//返回封装的结构体
 	userData = UserData{
-		Id:             id,
-		Username:       user.Username,
-		FollowCount:    3,     //这里本应该是查询出来的变量,为了测试直接赋值
-		FollowerCount:  5,     //这里本应该是查询出来的变量,为了测试直接赋值
-		IsFollow:       false, //这里因为没有登录，查看不了是否关注，默认不关注
-		TotalFavorited: 100,   //这里本应该是查询出来的变量,为了测试直接赋值
-		FavoritedCount: 1,     //这里本应该是查询出来的变量,为了测试直接赋值
+		Id:            id,
+		Username:      user.Username,
+		FollowCount:   3,     //这里本应该是查询出来的变量,为了测试直接赋值
+		FollowerCount: 5,     //这里本应该是查询出来的变量,为了测试直接赋值
+		IsFollow:      false, //这里因为没有登录，查看不了是否关注，默认不关注
 	}
 	return userData, nil
 }
