@@ -75,9 +75,6 @@ func (useri *UserImpl) GetUserDataById(id int64) (UserData, error) {
 	}
 	log.Println("查询用户成功!!")
 	//这里查询关注数量
-	//查询粉丝数量
-	//查询总的点赞数
-	//查询喜欢的视频数
 
 	//返回封装的结构体
 	userData = UserData{

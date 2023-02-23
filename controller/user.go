@@ -104,4 +104,5 @@ func UserInfo(c *gin.Context) {
 			User:     user,
 		})
 	}
+
 }

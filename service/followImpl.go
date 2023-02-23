@@ -11,23 +11,23 @@ type FollowImpl struct {
 }
 
 // 添加订阅记录
-func InsertFollow(userId int64, toUserId int64) (bool, error) {
+func InsertFollow(userId int64, toUserId int64) error {
 	err := dao.NewFollowDaoInstance().InsertFollow(userId, toUserId)
 	if err != nil {
 		log.Println("添加订阅记录失败!", err)
-		return false, err
+		return err
 	}
-	return true, nil
+	return nil
 }
 
 // 取消订阅记录
-func DeleteFollow(userId int64, toUserId int64) (bool, error) {
+func DeleteFollow(userId int64, toUserId int64) error {
 	err := dao.NewFollowDaoInstance().DeleteFollow(userId, toUserId)
 	if err != nil {
 		log.Println("取消订阅记录失败!", err)
-		return false, err
+		return err
 	}
-	return true, nil
+	return nil
 }
 
 func GetFollowDataList(userId int64) ([]UserData, error) {
@@ -56,4 +56,13 @@ func GetFollowerDataList(userId int64) ([]UserData, error) {
 		return nil, err
 	}
 	return userDataList, nil
+}
+
+func GetUserDataById(userId int64, isFollow bool) (UserData, error) {
+	var userData = UserData{}
+	userData, _ = new(UserImpl).GetUserDataById(userId)
+	userData.FavoritedCount, _ = dao.CountFollow(userId)
+	userData.FollowerCount, _ = dao.CountFollower(userId)
+	userData.IsFollow = isFollow
+	return userData, nil
 }
