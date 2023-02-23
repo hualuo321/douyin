@@ -5,10 +5,11 @@ import "github.com/hualuo321/douyin/dao"
 // 封装返回的User结构体信息
 type UserData struct {
 	Id             int64  `json:"id,omitempty"`
-	Username       string `json:"name,omitempty"`
+	Name           string `json:"name,omitempty"`
 	FollowCount    int64  `json:"follow_count"`
 	FollowerCount  int64  `json:"follower_count"`
 	IsFollow       bool   `json:"is_follow"`
+	Signature      string `json:"signature"`
 	TotalFavorited int64  `json:"total_favorited,,omitempty"`
 	FavoritedCount int64  `json:"favorited_count,omitempty"`
 }

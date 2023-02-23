@@ -106,12 +106,15 @@ func Feed(c *gin.Context) {
 	fmt.Println("-传入的时间戳", inputTime)
 	var lastTime time.Time
 	if inputTime != "0" {
-		lastTime = time.Now()
+		fmt.Println("这里是1")
+		me, _ := strconv.ParseInt(inputTime, 10, 64)
+		lastTime = time.UnixMilli(me)
 	} else {
+		fmt.Println("这里是2")
 		lastTime = time.Now()
 	}
 	fmt.Println("-最新的时间", lastTime)
-	userId, _ := strconv.ParseInt(c.GetString("userId"), 10, 64)
+	userId, _ := strconv.ParseInt(c.GetString("userId"), 10, 64) // 当前 ID
 	fmt.Println("-获取到当前用户id", userId)
 
 	fmt.Println("-定义videoi接口, 根据 videoi.Feed 获取视频数据列表")

@@ -60,10 +60,11 @@ func (useri *UserImpl) InsertUser(user *dao.User) bool {
 func (useri *UserImpl) GetUserDataById(id int64) (UserData, error) {
 	userData := UserData{
 		Id:             0,
-		Username:       "",
+		Name:           "",
 		FollowCount:    0,
 		FollowerCount:  0,
 		IsFollow:       false,
+		Signature:      "",
 		TotalFavorited: 0,
 		FavoritedCount: 0,
 	}
@@ -73,34 +74,40 @@ func (useri *UserImpl) GetUserDataById(id int64) (UserData, error) {
 		log.Println("用户未找到！！")
 		return userData, err
 	}
-	log.Println("查询用户成功!!")
-	//这里查询关注数量
-
-	//返回封装的结构体
+	// followCount := GetUserFollowInfo(id)
+	// fmt.Println("----------------followcount, ", followCount)
+	// followerCount := GetUserFollowerInfo(id)
+	signature := "世界这么大，谢谢你的关注！"
+	dao.NewRelationDaoInstance().FindRelationBetween(id, id)
 	userData = UserData{
 		Id:             id,
-		Username:       user.Username,
-		FollowCount:    3,     //这里本应该是查询出来的变量,为了测试直接赋值
-		FollowerCount:  5,     //这里本应该是查询出来的变量,为了测试直接赋值
-		IsFollow:       false, //这里因为没有登录，查看不了是否关注，默认不关注
-		TotalFavorited: 100,   //这里本应该是查询出来的变量,为了测试直接赋值
-		FavoritedCount: 1,     //这里本应该是查询出来的变量,为了测试直接赋值
+		Name:           user.Username,
+		FollowCount:    333,
+		FollowerCount:  444,
+		IsFollow:       false,
+		Signature:      signature,
+		TotalFavorited: 100,
+		FavoritedCount: 10,
 	}
+
+	log.Println("查询用户成功!!")
+	//返回封装的结构体
 	return userData, nil
 }
 
-// 已登录状态
-func (useri *UserImpl) GetUserByCurrentId(id int64, currentId int64) (UserData, error) {
+// 根据当前Id获取用户数据
+func (useri *UserImpl) GetUserDataByCurId(id int64, currentId int64) (UserData, error) {
 	userData := UserData{
 		Id:             0,
-		Username:       "",
+		Name:           "",
 		FollowCount:    0,
 		FollowerCount:  0,
 		IsFollow:       false,
+		Signature:      "",
 		TotalFavorited: 0,
 		FavoritedCount: 0,
 	}
-	user, err := dao.GetUserById(id)
+	user, err := dao.GetUserById(id) // 获取视频作者
 	if err != nil {
 		log.Println("err:", err.Error())
 		log.Println("用户未找到！！")
@@ -112,30 +119,36 @@ func (useri *UserImpl) GetUserByCurrentId(id int64, currentId int64) (UserData, 
 	//查询是否关注 利用当前id 和 目标id
 	//查询总的点赞数
 	//查询喜欢的视频数
-
+	followCount := GetUserFollowInfo(id)
+	fmt.Println("----------------followcount, ", followCount)
+	followerCount := GetUserFollowerInfo(id)
+	signature := "世界这么大，谢谢你的关注！"
+	isFollow, _ := dao.NewRelationDaoInstance().FindRelationBetween(currentId, id)
+	fmt.Println(currentId, id, isFollow)
 	//返回封装的结构体
 	userData = UserData{
 		Id:             id,
-		Username:       user.Username,
-		FollowCount:    3,     //这里本应该是查询出来的变量,为了测试直接赋值
-		FollowerCount:  5,     //这里本应该是查询出来的变量,为了测试直接赋值
-		IsFollow:       false, //这里因为没有登录，查看不了是否关注，默认不关注
-		TotalFavorited: 100,   //这里本应该是查询出来的变量,为了测试直接赋值
-		FavoritedCount: 1,     //这里本应该是查询出来的变量,为了测试直接赋值
+		Name:           user.Username,
+		FollowCount:    followCount,   //这里本应该是查询出来的变量,为了测试直接赋值
+		FollowerCount:  followerCount, //这里本应该是查询出来的变量,为了测试直接赋值
+		IsFollow:       isFollow,      //这里因为没有登录，查看不了是否关注，默认不关注
+		Signature:      signature,
+		TotalFavorited: 100, //这里本应该是查询出来的变量,为了测试直接赋值
+		FavoritedCount: 10,  //这里本应该是查询出来的变量,为了测试直接赋值
 	}
 	return userData, nil
 }
 
 // / 获取用户数据列表
-func (useri *UserImpl) GetUserDataList(userIdList []int64) ([]UserData, error) {
-	var userDataList []UserData
-	for _, userId := range userIdList {
-		userData, err := useri.GetUserDataById(userId)
-		if err != nil {
-			log.Println("通过Id获取用户失败", err)
-			return nil, err
-		}
-		userDataList = append(userDataList, userData)
-	}
-	return userDataList, nil
-}
+// func (useri *UserImpl) GetUserDataList(userIdList []int64) ([]UserData, error) {
+// 	var userDataList []UserData
+// 	for _, userId := range userIdList {
+// 		userData, err := useri.GetUserDataById(userId)
+// 		if err != nil {
+// 			log.Println("通过Id获取用户失败", err)
+// 			return nil, err
+// 		}
+// 		userDataList = append(userDataList, userData)
+// 	}
+// 	return userDataList, nil
+// }
