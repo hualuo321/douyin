@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	VideoCount     = 5
+	VideoCount     = 10
 	PlayUrlPrefix  = "http://192.168.249.81:8080/public/videos/"
 	CoverUrlPrefix = "http://192.168.249.81:8080/public/covers/"
 )
@@ -56,7 +56,7 @@ func QueryVideoByVideoId(videoId int64) (Video, error) {
 }
 
 // 依据一个时间，来获取这个时间之前的一些视频
-func QueryVideosByLastTime(lastTime time.Time) ([]Video, error) {
+func GetVideoListByLastTime(lastTime time.Time) ([]Video, error) {
 	videoList := make([]Video, VideoCount)
 	//format the time to compare with the time in db
 	err := db.Where("publish_time<?", lastTime).Order("publish_time desc").Limit(VideoCount).Find(&videoList).Error

@@ -90,9 +90,12 @@ func UserInfo(c *gin.Context) {
 	print("------查询到的 userid 为", id)
 	user_id, _ := strconv.ParseInt(id, 10, 64)
 	print("------查询到的 userid 为", user_id)
+
+	curId, _ := strconv.ParseInt(c.GetString("userId"), 10, 64)
 	useri := service.UserImpl{}
-	//非登录情况下
-	user, err := useri.GetUserById(user_id)
+	//登录情况下
+	// user, err := useri.GetUserDataById(user_id)
+	user, err := useri.GetUserDataByCurId(user_id, curId)
 	fmt.Println("--------查询到的用户信息为", user)
 	if err != nil {
 		c.JSON(http.StatusOK, UserResponse{
@@ -104,4 +107,5 @@ func UserInfo(c *gin.Context) {
 			User:     user,
 		})
 	}
+
 }

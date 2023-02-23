@@ -6,6 +6,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/gin-gonic/gin v1.8.2
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/u2takey/ffmpeg-go v0.4.1
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/gorm v1.24.5
@@ -13,6 +14,8 @@ require (
 
 require (
 	github.com/aws/aws-sdk-go v1.44.205 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
