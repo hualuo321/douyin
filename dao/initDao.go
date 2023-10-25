@@ -1,17 +1,17 @@
 package dao
 
 import (
-	"fmt"
-	"log"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"log"
+	"os"
+	"time"
 )
 
-var db *gorm.DB
+var Db *gorm.Db
 
-func Init() error {
-	var err error
+func Init() {
 	// 配置 Mysql 连接参数
 	username := "root"  // 账号
 	password := "0801"  // 密码
@@ -19,11 +19,10 @@ func Init() error {
 	port := 3306        // 端口
 	Dbname := "douyin"  // 数据库
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", username, password, host, port, Dbname)
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalln("db connected error", err)
 	} else {
-		fmt.Println("数据库连接成功")
+		fmt.Println("db connected successful")
 	}
-	return err
 }
