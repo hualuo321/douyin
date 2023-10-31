@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/hualuo321/douyin/config"
-	"github.com/hualuo321/douyin//dao"
+	"github.com/hualuo321/douyin/dao"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -15,6 +15,7 @@ import (
 
 type UserServiceImpl struct {
 	FollowService
+	LikeService
 }
 
 // GetTableUserList 获得全部TableUser对象
